@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/navigation_photos"
+        android:icon="@drawable/ic_photo_library_24px"
+        android:title="@string/photos"
+        android:enabled="true"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/navigation_song"
+        android:icon="@drawable/ic_music_note_24px"
+        android:title="@string/song"
+        android:enabled="true"
+        app:showAsAction="ifRoom" />
+</menu>

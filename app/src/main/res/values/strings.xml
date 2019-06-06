@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">KotlinBackgroundProcessing</string>
+    <string name="photos">Photos</string>
+    <string name="song">Song</string>
+    <string name="download">Download</string>
+    <string name="play">Play</string>
+    <string name="stop">Stop</string>
+    <string name="banner_photo">Banner photo</string>
+    <string name="event_photo">Event photo</string>
+</resources>
