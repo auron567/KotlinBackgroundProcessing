@@ -2,16 +2,37 @@ package com.example.kotlinbackgroundprocessing.app
 
 import android.content.Context
 import android.util.Log
+import org.json.JSONException
+import org.json.JSONObject
 import java.io.*
 import java.lang.StringBuilder
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
 object PhotosUtils {
+    private const val TAG = "PhotoUtils"
     private const val DATA_DIR = "data"
     private const val PHOTOS_FILENAME = "photos.json"
+    private const val PHOTO_KEY = "photos"
 
-    fun photoJsonString(): String? {
+    fun photoUrlsFromJsonString(jsonString: String): ArrayList<String>? {
+        val photoUrls = arrayListOf<String>()
+
+        try {
+            val photoArray = JSONObject(jsonString).getJSONArray(PHOTO_KEY)
+            for (i in 0 until photoArray.length()) {
+                val photo = photoArray[i] as String
+                photoUrls.add(photo)
+            }
+        } catch (e: JSONException) {
+            Log.e(TAG, "Error parsing JSON")
+            return null
+        }
+
+        return photoUrls
+    }
+
+    fun photoJsonString(): String {
         return if (!dataFile().exists()) {
             fetchJsonString()
         } else {
@@ -19,7 +40,7 @@ object PhotosUtils {
         }
     }
 
-    private fun fetchJsonString(): String? {
+    private fun fetchJsonString(): String {
         val string: String?
         string = getUrlAsString(Constants.PHOTO_URL)
 
@@ -28,7 +49,7 @@ object PhotosUtils {
             outputStream.write(string.toByteArray())
             outputStream.close()
         } catch (e: IOException) {
-            Log.e("FileRepository", "Error saving data")
+            Log.e(TAG, "Error saving data")
         }
 
         return string
