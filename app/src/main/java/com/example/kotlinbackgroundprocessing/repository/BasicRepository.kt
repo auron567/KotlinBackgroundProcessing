@@ -18,22 +18,11 @@ object BasicRepository : Repository {
     }
 
     override fun getBanner(): LiveData<String> {
-        fetchBanner()
+        FetchBannerAsyncTask { banner ->
+            bannerLiveData.value = banner
+        }.execute()
+
         return bannerLiveData
-    }
-
-    private fun fetchBanner() {
-        val runnable = Runnable {
-            val photosString = PhotosUtils.photoJsonString()
-            val banner = PhotosUtils.bannerUrlFromJsonString(photosString)
-
-            if (banner != null) {
-                bannerLiveData.postValue(banner)
-            }
-        }
-
-        val thread = Thread(runnable)
-        // thread.start()
     }
 
     private class FetchPhotosAsyncTask(val callback: (List<String>) -> Unit)
@@ -45,6 +34,21 @@ object BasicRepository : Repository {
         }
 
         override fun onPostExecute(result: List<String>?) {
+            if (result != null) {
+                callback(result)
+            }
+        }
+    }
+
+    private class FetchBannerAsyncTask(val callback: (String) -> Unit)
+        : AsyncTask<Void, Void, String>() {
+
+        override fun doInBackground(vararg params: Void?): String? {
+            val photosString = PhotosUtils.photoJsonString()
+            return PhotosUtils.bannerUrlFromJsonString(photosString)
+        }
+
+        override fun onPostExecute(result: String?) {
             if (result != null) {
                 callback(result)
             }
