@@ -9,21 +9,36 @@ object BasicRepository : Repository {
     private val bannerLiveData = MutableLiveData<String>()
 
     override fun getPhotos(): LiveData<List<String>> {
-        fetchJsonData()
+        fetchPhotos()
         return photosLiveData
     }
 
     override fun getBanner(): LiveData<String> {
+        fetchBanner()
         return bannerLiveData
     }
 
-    private fun fetchJsonData() {
+    private fun fetchPhotos() {
         val runnable = Runnable {
             val photosString = PhotosUtils.photoJsonString()
             val photos = PhotosUtils.photoUrlsFromJsonString(photosString)
 
             if (photos != null) {
                 photosLiveData.postValue(photos)
+            }
+        }
+
+        val thread = Thread(runnable)
+        thread.start()
+    }
+
+    private fun fetchBanner() {
+        val runnable = Runnable {
+            val photosString = PhotosUtils.photoJsonString()
+            val banner = PhotosUtils.bannerUrlFromJsonString(photosString)
+
+            if (banner != null) {
+                bannerLiveData.postValue(banner)
             }
         }
 

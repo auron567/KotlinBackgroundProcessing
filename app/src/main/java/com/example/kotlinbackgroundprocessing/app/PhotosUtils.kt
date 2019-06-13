@@ -14,6 +14,7 @@ object PhotosUtils {
     private const val DATA_DIR = "data"
     private const val PHOTOS_FILENAME = "photos.json"
     private const val PHOTO_KEY = "photos"
+    private const val BANNER_KEY = "banner"
 
     fun photoUrlsFromJsonString(jsonString: String): ArrayList<String>? {
         val photoUrls = arrayListOf<String>()
@@ -30,6 +31,15 @@ object PhotosUtils {
         }
 
         return photoUrls
+    }
+
+    fun bannerUrlFromJsonString(jsonString: String): String? {
+        return try {
+            JSONObject(jsonString).getString(BANNER_KEY)
+        } catch (e: JSONException) {
+            Log.e(TAG, "Error parsing JSON")
+            return null
+        }
     }
 
     fun photoJsonString(): String {
