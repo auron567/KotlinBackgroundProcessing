@@ -3,28 +3,21 @@ package com.example.kotlinbackgroundprocessing.service
 import android.app.job.JobParameters
 import android.app.job.JobService
 import android.util.Log
-import com.example.kotlinbackgroundprocessing.app.PhotosUtils
 
-class PhotosJobService : JobService() {
+class LogJobService : JobService() {
 
     companion object {
-        private const val TAG = "PhotosJobService"
+        private const val TAG = "LogJobService"
     }
 
     override fun onStartJob(params: JobParameters?): Boolean {
         val runnable = Runnable {
-            val needsReschedule: Boolean
-            needsReschedule = try {
-                val jsonString = PhotosUtils.fetchJsonString()
-                (jsonString == null)
-            } catch (e: InterruptedException) {
-                Log.e(TAG, "Error running job: ${e.message}")
-                true
-            }
-            Log.i(TAG, "Job finished: ${params?.jobId}, needsReschedule = $needsReschedule")
-            jobFinished(params, needsReschedule)
+            Thread.sleep(10000)
+            jobFinished(params, false)
+            Log.i(TAG, "Job finished: ${params?.jobId}")
         }
 
+        Log.i(TAG, "Job started: ${params?.jobId}")
         Thread(runnable).start()
         return true
     }

@@ -9,6 +9,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.kotlinbackgroundprocessing.app.App
 import com.example.kotlinbackgroundprocessing.app.PhotosUtils
+import com.example.kotlinbackgroundprocessing.service.LogJobService
 import com.example.kotlinbackgroundprocessing.service.PhotosJobService
 
 object BasicRepository : Repository {
@@ -17,6 +18,7 @@ object BasicRepository : Repository {
 
     init {
         scheduleFetchJob()
+        scheduleLogJob()
     }
 
     override fun getPhotos(): LiveData<List<String>> {
@@ -40,6 +42,16 @@ object BasicRepository : Repository {
         val jobInfo = JobInfo.Builder(1000,
             ComponentName(App.getAppContext(), PhotosJobService::class.java))
             .setPeriodic(900000)
+            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+            .build()
+
+        jobScheduler.schedule(jobInfo)
+    }
+
+    private fun scheduleLogJob() {
+        val jobScheduler = App.getAppContext().getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        val jobInfo = JobInfo.Builder(1001,
+            ComponentName(App.getAppContext(), LogJobService::class.java))
             .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
             .build()
 
