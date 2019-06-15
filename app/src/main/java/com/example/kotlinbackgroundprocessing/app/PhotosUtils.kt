@@ -42,7 +42,7 @@ object PhotosUtils {
         }
     }
 
-    fun photoJsonString(): String {
+    fun photoJsonString(): String? {
         return if (!dataFile().exists()) {
             fetchJsonString()
         } else {
@@ -50,7 +50,7 @@ object PhotosUtils {
         }
     }
 
-    private fun fetchJsonString(): String {
+    fun fetchJsonString(): String? {
         val string: String?
         string = getUrlAsString(Constants.PHOTO_URL)
 

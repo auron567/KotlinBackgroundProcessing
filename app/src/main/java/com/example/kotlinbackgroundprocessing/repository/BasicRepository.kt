@@ -30,7 +30,7 @@ object BasicRepository : Repository {
 
         override fun doInBackground(vararg params: Void?): List<String>? {
             val photosString = PhotosUtils.photoJsonString()
-            return PhotosUtils.photoUrlsFromJsonString(photosString)
+            return PhotosUtils.photoUrlsFromJsonString(photosString ?: "")
         }
 
         override fun onPostExecute(result: List<String>?) {
@@ -45,7 +45,7 @@ object BasicRepository : Repository {
 
         override fun doInBackground(vararg params: Void?): String? {
             val photosString = PhotosUtils.photoJsonString()
-            return PhotosUtils.bannerUrlFromJsonString(photosString)
+            return PhotosUtils.bannerUrlFromJsonString(photosString ?: "")
         }
 
         override fun onPostExecute(result: String?) {
