@@ -1,13 +1,23 @@
 package com.example.kotlinbackgroundprocessing.repository
 
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
+import android.content.ComponentName
+import android.content.Context
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.kotlinbackgroundprocessing.app.App
 import com.example.kotlinbackgroundprocessing.app.PhotosUtils
+import com.example.kotlinbackgroundprocessing.service.PhotosJobService
 
 object BasicRepository : Repository {
     private val photosLiveData = MutableLiveData<List<String>>()
     private val bannerLiveData = MutableLiveData<String>()
+
+    init {
+        scheduleFetchJob()
+    }
 
     override fun getPhotos(): LiveData<List<String>> {
         FetchPhotosAsyncTask { photos ->
@@ -23,6 +33,17 @@ object BasicRepository : Repository {
         }.execute()
 
         return bannerLiveData
+    }
+
+    private fun scheduleFetchJob() {
+        val jobScheduler = App.getAppContext().getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        val jobInfo = JobInfo.Builder(1000,
+            ComponentName(App.getAppContext(), PhotosJobService::class.java))
+            .setPeriodic(900000)
+            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+            .build()
+
+        jobScheduler.schedule(jobInfo)
     }
 
     private class FetchPhotosAsyncTask(val callback: (List<String>) -> Unit)
