@@ -1,24 +1,24 @@
 package com.example.kotlinbackgroundprocessing.repository
 
-import android.app.job.JobInfo
-import android.app.job.JobScheduler
-import android.content.ComponentName
-import android.content.Context
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.kotlinbackgroundprocessing.app.App
+import androidx.work.*
 import com.example.kotlinbackgroundprocessing.app.PhotosUtils
-import com.example.kotlinbackgroundprocessing.service.LogJobService
-import com.example.kotlinbackgroundprocessing.service.PhotosJobService
+import com.example.kotlinbackgroundprocessing.service.LogWorker
+import com.example.kotlinbackgroundprocessing.service.PhotosWorker
+import java.util.concurrent.TimeUnit
 
 object BasicRepository : Repository {
     private val photosLiveData = MutableLiveData<List<String>>()
     private val bannerLiveData = MutableLiveData<String>()
 
+    private const val PHOTOS_WORKER_TAG = "PHOTOS_WORKER_TAG"
+    private const val LOG_WORKER_TAG = "LOG_WORKER_TAG"
+
     init {
-        scheduleFetchJob()
-        scheduleLogJob()
+        schedulePhotosWorker()
+        scheduleLogWorker()
     }
 
     override fun getPhotos(): LiveData<List<String>> {
@@ -37,25 +37,36 @@ object BasicRepository : Repository {
         return bannerLiveData
     }
 
-    private fun scheduleFetchJob() {
-        val jobScheduler = App.getAppContext().getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
-        val jobInfo = JobInfo.Builder(1000,
-            ComponentName(App.getAppContext(), PhotosJobService::class.java))
-            .setPeriodic(900000)
-            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+    private fun schedulePhotosWorker() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
-        jobScheduler.schedule(jobInfo)
+        val request = PeriodicWorkRequestBuilder<PhotosWorker>(15, TimeUnit.MINUTES)
+            .setConstraints(constraints)
+            .addTag(PHOTOS_WORKER_TAG)
+            .build()
+
+        with(WorkManager.getInstance()) {
+            cancelAllWorkByTag(PHOTOS_WORKER_TAG)
+            enqueue(request)
+        }
     }
 
-    private fun scheduleLogJob() {
-        val jobScheduler = App.getAppContext().getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
-        val jobInfo = JobInfo.Builder(1001,
-            ComponentName(App.getAppContext(), LogJobService::class.java))
-            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+    private fun scheduleLogWorker() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
-        jobScheduler.schedule(jobInfo)
+        val request = OneTimeWorkRequestBuilder<LogWorker>()
+            .setConstraints(constraints)
+            .addTag(LOG_WORKER_TAG)
+            .build()
+
+        with(WorkManager.getInstance()) {
+            cancelAllWorkByTag(LOG_WORKER_TAG)
+            enqueue(request)
+        }
     }
 
     private class FetchPhotosAsyncTask(val callback: (List<String>) -> Unit)

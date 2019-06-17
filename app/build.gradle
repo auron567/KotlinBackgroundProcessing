@@ -6,7 +6,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.example.kotlinbackgroundprocessing"
-        minSdkVersion 21
+        minSdkVersion 15
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -32,6 +32,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     // ViewModel and LiveData
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
+    // WorkManager
+    implementation "androidx.work:work-runtime-ktx:$work_version"
     // Picasso
     implementation "com.squareup.picasso:picasso:$picasso_version"
     // Test
