@@ -4,6 +4,7 @@ import android.app.IntentService
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.kotlinbackgroundprocessing.app.SongUtils
 
 class DownloadIntentService : IntentService("DownloadIntentService") {
@@ -12,6 +13,8 @@ class DownloadIntentService : IntentService("DownloadIntentService") {
         private const val TAG = "DownloadIntentService"
         private const val ACTION_DOWNLOAD = "ACTION_DOWNLOAD"
         private const val EXTRA_URL = "EXTRA_URL"
+        const val DOWNLOAD_COMPLETE = "DOWNLOAD_COMPLETE"
+        const val DOWNLOAD_COMPLETE_KEY = "DOWNLOAD_COMPLETE_KEY"
 
         fun startActionDownload(context: Context, param: String) {
             val intent = Intent(context, DownloadIntentService::class.java).apply {
@@ -45,5 +48,16 @@ class DownloadIntentService : IntentService("DownloadIntentService") {
         Log.i(TAG, "Starting download for $param")
         SongUtils.download(param)
         Log.i(TAG, "Ending download for $param")
+
+        Log.i(TAG, "Sending broadcast for $param")
+        broadcastDownloadComplete(param)
+    }
+
+    private fun broadcastDownloadComplete(param: String) {
+        val intent = Intent(DOWNLOAD_COMPLETE).apply {
+            putExtra(DOWNLOAD_COMPLETE_KEY, param)
+        }
+
+        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(intent)
     }
 }
