@@ -14,12 +14,13 @@ import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_photos.*
 
 class PhotosFragment : Fragment() {
-    private lateinit var photosViewModel: PhotosViewModel
-    private val adapter = PhotosAdapter(mutableListOf())
 
     companion object {
         fun newInstance() = PhotosFragment()
     }
+
+    private lateinit var photosViewModel: PhotosViewModel
+    private val adapter = PhotosAdapter(mutableListOf())
 
     override fun onCreateView(
         inflater: LayoutInflater,

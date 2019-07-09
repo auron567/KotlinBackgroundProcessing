@@ -19,6 +19,13 @@ import com.example.kotlinbackgroundprocessing.service.DownloadIntentService
 import kotlinx.android.synthetic.main.fragment_song.*
 
 class SongFragment : Fragment() {
+
+    companion object {
+        private const val TAG = "SongFragment"
+
+        fun newInstance() = SongFragment()
+    }
+
     private val localBroadcastManager = LocalBroadcastManager.getInstance(App.getAppContext())
 
     private val receiver = object : BroadcastReceiver() {
@@ -30,12 +37,6 @@ class SongFragment : Fragment() {
                 play_button.isEnabled = true
             }
         }
-    }
-
-    companion object {
-        private const val TAG = "SongFragment"
-
-        fun newInstance() = SongFragment()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

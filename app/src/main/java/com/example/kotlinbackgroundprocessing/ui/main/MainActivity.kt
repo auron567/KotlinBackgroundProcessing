@@ -3,6 +3,7 @@ package com.example.kotlinbackgroundprocessing.ui.main
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentPagerAdapter
 import com.example.kotlinbackgroundprocessing.R
 import com.example.kotlinbackgroundprocessing.ui.photos.PhotosFragment
 import com.example.kotlinbackgroundprocessing.ui.song.SongFragment
@@ -12,25 +13,42 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
     private val onNavigationItemSelectedListener =
         BottomNavigationView.OnNavigationItemSelectedListener { item ->
-            val fragment = when (item.itemId) {
-                R.id.navigation_photos -> PhotosFragment.newInstance()
-                R.id.navigation_song -> SongFragment.newInstance()
-                else -> PhotosFragment.newInstance()
+            when (item.itemId) {
+                R.id.navigation_photos -> {
+                    view_pager.setCurrentItem(0, false)
+                    true
+                }
+                R.id.navigation_song -> {
+                    view_pager.setCurrentItem(1, false)
+                    true
+                }
+                else -> false
             }
-            switchToFragment(fragment)
-            true
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        navigation.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
-        switchToFragment(PhotosFragment.newInstance())
+        setupNavigation()
+        setupViewPager()
     }
 
-    private fun switchToFragment(fragment: Fragment) {
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.main_container, fragment).commit()
+    private fun setupNavigation() {
+        navigation.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
+    }
+
+    private fun setupViewPager() {
+        view_pager.adapter = object : FragmentPagerAdapter(supportFragmentManager) {
+            override fun getItem(position: Int): Fragment? {
+                return when (position) {
+                    0 -> PhotosFragment.newInstance()
+                    1 -> SongFragment.newInstance()
+                    else -> null
+                }
+            }
+
+            override fun getCount() = 2
+        }
     }
 }
