@@ -9,6 +9,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.kotlinbackgroundprocessing.R
+import com.example.kotlinbackgroundprocessing.app.App
+import com.example.kotlinbackgroundprocessing.service.FetchIntentService
 import com.example.kotlinbackgroundprocessing.viewmodel.PhotosViewModel
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_photos.*
@@ -47,5 +49,16 @@ class PhotosFragment : Fragment() {
         photosViewModel.getPhotos().observe(this, Observer<List<String>> { photos ->
             adapter.updatePhotos(photos)
         })
+    }
+
+    override fun onStart() {
+        super.onStart()
+        photosViewModel.onStart()
+        FetchIntentService.startActionFetch(App.getAppContext())
+    }
+
+    override fun onStop() {
+        super.onStop()
+        photosViewModel.onStop()
     }
 }

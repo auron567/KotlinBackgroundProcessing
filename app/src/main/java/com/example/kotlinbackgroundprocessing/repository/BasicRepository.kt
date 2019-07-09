@@ -1,10 +1,17 @@
 package com.example.kotlinbackgroundprocessing.repository
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.work.*
+import com.example.kotlinbackgroundprocessing.app.App
 import com.example.kotlinbackgroundprocessing.app.PhotosUtils
+import com.example.kotlinbackgroundprocessing.service.FetchIntentService
 import com.example.kotlinbackgroundprocessing.service.LogWorker
 import com.example.kotlinbackgroundprocessing.service.PhotosWorker
 import java.util.concurrent.TimeUnit
@@ -12,9 +19,22 @@ import java.util.concurrent.TimeUnit
 object BasicRepository : Repository {
     private val photosLiveData = MutableLiveData<List<String>>()
     private val bannerLiveData = MutableLiveData<String>()
+    private val localBroadcastManager = LocalBroadcastManager.getInstance(App.getAppContext())
 
     private const val PHOTOS_WORKER_TAG = "PHOTOS_WORKER_TAG"
     private const val LOG_WORKER_TAG = "LOG_WORKER_TAG"
+
+    private val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            FetchBannerAsyncTask { banner ->
+                bannerLiveData.value = banner
+            }.execute()
+
+            FetchPhotosAsyncTask { photos ->
+                photosLiveData.value = photos
+            }.execute()
+        }
+    }
 
     init {
         schedulePhotosWorker()
@@ -35,6 +55,14 @@ object BasicRepository : Repository {
         }.execute()
 
         return bannerLiveData
+    }
+
+    override fun register() {
+        localBroadcastManager.registerReceiver(receiver, IntentFilter(FetchIntentService.FETCH_COMPLETE))
+    }
+
+    override fun unregister() {
+        localBroadcastManager.unregisterReceiver(receiver)
     }
 
     private fun schedulePhotosWorker() {

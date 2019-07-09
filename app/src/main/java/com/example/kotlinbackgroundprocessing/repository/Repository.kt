@@ -7,4 +7,8 @@ interface Repository {
     fun getPhotos(): LiveData<List<String>>
 
     fun getBanner(): LiveData<String>
+
+    fun register()
+
+    fun unregister()
 }
