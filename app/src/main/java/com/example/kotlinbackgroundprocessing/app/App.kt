@@ -7,6 +7,7 @@ class App : Application() {
 
     companion object {
         private lateinit var instance: App
+        var isPlayingSong = false
 
         fun getAppContext(): Context {
             return instance.applicationContext

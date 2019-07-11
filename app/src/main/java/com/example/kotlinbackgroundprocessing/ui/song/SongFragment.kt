@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.kotlinbackgroundprocessing.R
@@ -16,6 +17,7 @@ import com.example.kotlinbackgroundprocessing.app.App
 import com.example.kotlinbackgroundprocessing.app.Constants
 import com.example.kotlinbackgroundprocessing.app.SongUtils
 import com.example.kotlinbackgroundprocessing.service.DownloadIntentService
+import com.example.kotlinbackgroundprocessing.service.SongService
 import kotlinx.android.synthetic.main.fragment_song.*
 
 class SongFragment : Fragment() {
@@ -34,7 +36,8 @@ class SongFragment : Fragment() {
             Log.i(TAG, "Received broadcast for $param")
 
             if (SongUtils.songFile().exists()) {
-                play_button.isEnabled = true
+                enablePlayButton()
+                download_button.isEnabled = false
             }
         }
     }
@@ -49,13 +52,28 @@ class SongFragment : Fragment() {
         download_button.setOnClickListener {
             DownloadIntentService.startActionDownload(view.context, Constants.SONG_URL)
         }
+
+        play_button.setOnClickListener {
+            startPlaying()
+        }
+
+        stop_button.setOnClickListener {
+            stopPlaying()
+        }
     }
 
     override fun onResume() {
         super.onResume()
 
-        if (SongUtils.songFile().exists()) {
-            play_button.isEnabled = true
+        if (App.isPlayingSong) {
+            enableStopButton()
+        } else {
+            enablePlayButton()
+        }
+
+        if (!SongUtils.songFile().exists()) {
+            disableMediaButton()
+            download_button.isEnabled = true
         }
     }
 
@@ -67,5 +85,32 @@ class SongFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         localBroadcastManager.unregisterReceiver(receiver)
+    }
+
+    private fun startPlaying() {
+        context?.let {
+            ContextCompat.startForegroundService(it, Intent(it, SongService::class.java))
+        }
+        enableStopButton()
+    }
+
+    private fun stopPlaying() {
+        activity?.stopService(Intent(context, SongService::class.java))
+        enablePlayButton()
+    }
+
+    private fun enablePlayButton() {
+        play_button.isEnabled = true
+        stop_button.isEnabled = false
+    }
+
+    private fun enableStopButton() {
+        play_button.isEnabled = false
+        stop_button.isEnabled = true
+    }
+
+    private fun disableMediaButton() {
+        play_button.isEnabled = false
+        stop_button.isEnabled = false
     }
 }

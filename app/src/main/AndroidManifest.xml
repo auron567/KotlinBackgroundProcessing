@@ -28,6 +28,10 @@
         <service
             android:name=".service.FetchIntentService"
             android:exported="false" />
+        <service
+            android:name=".service.SongService"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>
